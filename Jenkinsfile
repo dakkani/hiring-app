@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         // Ensure SonarQube Scanner is installed.  You might need to configure this in Jenkins.
-        def sonarQubeScanner = tool 'SonarQube Scanner' // Define SonarQube Scanner tool
+        sonarQube name: 'sonarqube' // Corrected tool definition
     }
     
     stages {
@@ -23,8 +23,8 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv(serverId: 'sonarqube') {  // Use the SonarQube server ID "sonarqube"
-                    sh "${sonarQubeScanner}/bin/sonar-scanner -Dsonar.projectKey=hiring-app -Dsonar.host.url=http://18.215.189.58:9000 -Dsonar.login=sonarqube-token-name"
+                withSonarQubeEnv(credentialsId: 'sonarqube-id') {  // Use credentialsId
+                    sh "sonar-scanner -Dsonar.projectKey=hiring-app -Dsonar.host.url=http://18.215.189.58:9000"
                 }
             }
         }
