@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     tools {
-        // Reference the SonarScanner tool you configured in Jenkins
-        sonarScanner 'sonar-scanner'
+        // Use the correct tool type for SonarScanner
+        sonarRunner 'sonar-scanner'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm  // Uses the same SCM checkout that triggered the pipeline
+                checkout scm
             }
         }
         
@@ -22,7 +22,6 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube') {
-                    // The tool name will make sonar-scanner available in PATH
                     sh 'sonar-scanner -Dsonar.projectKey=hiring-app -Dsonar.host.url=http://18.215.189.58:9000'
                 }
             }
