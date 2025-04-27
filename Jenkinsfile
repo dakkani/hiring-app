@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        sonarQube name: 'sonarqube'
+        hudson.plugins.sonar.SonarRunnerInstallation name: 'sonarqube'  // Corrected tool definition
     }
     
     stages {
@@ -14,7 +14,7 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv(credentialsId: 'sonarqube-desc') {
+                withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'sonarqube-desc') { // Added installationName
                     sh "sonar-scanner -Dsonar.projectKey=hiring-app -Dsonar.host.url=http://18.215.189.58:9000"
                 }
             }
@@ -33,4 +33,3 @@ pipeline {
         }
     }
 }
-
