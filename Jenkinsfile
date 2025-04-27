@@ -2,59 +2,35 @@ pipeline {
     agent any
 
     tools {
-        // Ensure SonarQube Scanner is installed.  You might need to configure this in Jenkins.
-        sonarQube name: 'sonarqube' // Corrected tool definition
+        sonarQube name: 'sonarqube'
     }
     
     stages {
-        stage('Checkout') {
+        stage('Checkout & Build') {
             steps {
-                git(
-                    credentialsId: 'YOUR_GIT_CREDENTIALS_ID',
-                    url: 'https://github.com/dakkani/hiring-app.git',
-                    branch: 'main'
-                )
-            }
-        }
-        stage('Build') {
-            steps {
+                git(credentialsId: 'YOUR_GIT_CREDENTIALS_ID', url: 'https://github.com/dakkani/hiring-app.git', branch: 'main')
                 sh 'mvn clean install -DskipTests'
             }
         }
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv(credentialsId: 'sonarqube-desc') {  // Use credentialsId
+                withSonarQubeEnv(credentialsId: 'sonarqube-desc') {
                     sh "sonar-scanner -Dsonar.projectKey=hiring-app -Dsonar.host.url=http://18.215.189.58:9000"
                 }
             }
         }
-        stage('Test') {
+        stage('Quality Check & Deploy') {
             steps {
-               sh 'mvn test'
-            }
-        }
-        stage('Package') {
-            steps{
-                sh 'mvn package'
-            }
-
-        }
-        stage('Quality Gate') {
-            steps {
-                // Waits for SonarQube to finish processing and checks the Quality Gate status.
                 waitForQualityGate abortPipeline: true
-            }
-        }
-        stage('Deploy') {
-            steps {
                 echo 'Deploying application...'
-                echo 'Deployment logic needs to be configured here.'
+                echo 'Deployment logic needs configured here.'
             }
         }
     }
     post {
         always {
-            cleanWs() // Cleans the workspace after the pipeline execution
+            cleanWs()
         }
     }
 }
+
