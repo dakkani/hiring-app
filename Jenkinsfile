@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Define your environment variables here
-        DOCKERHUB_CREDENTIALS = credentials('docker-desc') // Jenkins credentials ID for DockerHub
+        DOCKERHUB_CREDENTIALS = credentials('docker-id') // Jenkins credentials ID for DockerHub
         DOCKER_IMAGE = 'omer2k1/hiring-app' // Replace with your DockerHub image name
         VERSION = "${env.BUILD_ID}" // Using build number as version
     }
