@@ -1,6 +1,6 @@
 FROM alpine:latest AS builder
 
-RUN apk update && apk add git && apk add maven
+RUN apk update && apk add maven
 
 COPY . /app
 
