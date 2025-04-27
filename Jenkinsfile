@@ -1,44 +1,54 @@
 pipeline {
     agent any
 
-    tools {
-        // Use the correct tool type for SonarScanner
-        sonarRunner 'sonar-scanner'
+    environment {
+        // Define your environment variables here
+        DOCKERHUB_CREDENTIALS = credentials('docker-desc') // Jenkins credentials ID for DockerHub
+        DOCKER_IMAGE = 'omer2k1/hiring-app' // Replace with your DockerHub image name
+        VERSION = "${env.BUILD_ID}" // Using build number as version
     }
 
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main', 
+                    url: 'https://github.com/dakkani/hiring-app.git' // Replace with your repo URL
             }
         }
-        
-        stage('Build') {
+
+        stage('Build with Maven') {
             steps {
-                sh 'mvn clean install -DskipTests'
+                sh 'mvn clean package' // This should generate your WAR file
             }
         }
-        
-        stage('SonarQube Analysis') {
+
+        stage('Build Docker Image') {
             steps {
-                withSonarQubeEnv('sonarqube') {
-                    sh 'sonar-scanner -Dsonar.projectKey=hiring-app -Dsonar.host.url=http://18.215.189.58:9000'
+                script {
+                    docker.build("${env.DOCKER_IMAGE}:${env.VERSION}")
                 }
             }
         }
-        
-        stage('Quality Check & Deploy') {
+
+        stage('Push to DockerHub') {
             steps {
-                waitForQualityGate abortPipeline: true
-                echo 'Deploying application...'
-                // Add your deployment commands here
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-credentials') {
+                        docker.image("${env.DOCKER_IMAGE}:${env.VERSION}").push()
+                        // Optionally push as latest
+                        docker.image("${env.DOCKER_IMAGE}:${env.VERSION}").push('latest')
+                    }
+                }
             }
         }
     }
-    
+
     post {
-        always {
-            cleanWs()
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
