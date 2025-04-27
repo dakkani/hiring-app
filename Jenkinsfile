@@ -1,48 +1,61 @@
 pipeline {
-    agent any  // Use any available agent, or specify a specific agent
+    agent any
 
+    tools {
+        // Ensure SonarQube Scanner is installed.  You might need to configure this in Jenkins.
+        def sonarQubeScanner = tool 'SonarQube Scanner' // Define SonarQube Scanner tool
+    }
+    
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the Git repository.  Use credentials if needed.
                 git(
-                    credentialsId: 'YOUR_GIT_CREDENTIALS_ID', // Replace with your Git credentials ID
+                    credentialsId: 'YOUR_GIT_CREDENTIALS_ID',
                     url: 'https://github.com/dakkani/hiring-app.git',
-                    branch: 'main' // Or your desired branch
+                    branch: 'main'
                 )
             }
         }
         stage('Build') {
             steps {
-                // Run Maven build
-                sh 'mvn clean install -DskipTests'  // Clean, install, and skip tests for faster build
+                sh 'mvn clean install -DskipTests'
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv(serverId: 'sonarqube') {  // Use the SonarQube server ID "sonarqube"
+                    sh "${sonarQubeScanner}/bin/sonar-scanner -Dsonar.projectKey=hiring-app -Dsonar.host.url=http://18.215.189.58:9000 -Dsonar.login=sonarqube-token-name"
+                }
             }
         }
         stage('Test') {
             steps {
-               //Run the tests
                sh 'mvn test'
             }
         }
         stage('Package') {
             steps{
-                //Package the application
                 sh 'mvn package'
             }
 
         }
+        stage('Quality Gate') {
+            steps {
+                // Waits for SonarQube to finish processing and checks the Quality Gate status.
+                waitForQualityGate abortPipeline: true
+            }
+        }
         stage('Deploy') {
             steps {
-                //  Deploy the application.  This is a placeholder.
-                //  You'll need to customize this based on your deployment environment.
-                //  For example, you might deploy to a web server, a cloud platform, or a container registry.
                 echo 'Deploying application...'
-                // Example: Deploy to a local directory (for demonstration purposes only)
-                // sh 'cp target/your-application.war /path/to/deployment/directory'
-                //  Example: Deploy to Docker (requires Docker plugin)
-                //  docker push your-docker-registry/your-image-name:latest
                 echo 'Deployment logic needs to be configured here.'
             }
         }
     }
+    post {
+        always {
+            cleanWs() // Cleans the workspace after the pipeline execution
+        }
+    }
 }
+
