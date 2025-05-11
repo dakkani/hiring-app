@@ -1,48 +1,113 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>in.javahome</groupId>
-    <artifactId>hiring-app</artifactId> <packaging>war</packaging>
-    <version>1.0.0-SNAPSHOT</version> <name>Hiring Application Webapp</name> <url>https://www.javahome.in/hiring-app</url> <properties>
-        <maven.compiler.source>1.8</maven.compiler.source> <maven.compiler.target>1.8</maven.compiler.target> <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> </properties>
+    <artifactId>hiring-app</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <name>Hiring Application Webapp</name>
+    <url>https://www.javahome.in/hiring-app</url>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.war.failOnMissingWebXml>false</maven.war.failOnMissingWebXml>
+        <!-- Centralized dependency versions -->
+        <jakarta.servlet.version>5.0.0</jakarta.servlet.version>
+        <jakarta.jsp.version>3.0.0</jakarta.jsp.version>
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
+    </properties>
 
     <dependencies>
+        <!-- JUnit Jupiter for modern testing -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version> <scope>test</scope>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
         </dependency>
 
+        <!-- Jakarta Servlet API (provided by container) -->
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version> <scope>provided</scope> </dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${jakarta.servlet.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
+        <!-- Jakarta JSP API (provided by container) -->
         <dependency>
-            <groupId>javax.servlet.jsp</groupId>
-            <artifactId>javax.servlet.jsp-api</artifactId>
-            <version>2.3.3</version> <scope>provided</scope> </dependency>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
+            <version>${jakarta.jsp.version}</version>
+            <scope>provided</scope>
+        </dependency>
 
-        </dependencies>
+        <!-- Add your application dependencies here -->
+    </dependencies>
 
     <build>
-        <finalName>hiring-app</finalName> <plugins>
+        <finalName>hiring-app</finalName>
+        <plugins>
+            <!-- WAR Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.4.0</version> <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml> </configuration>
+                <version>3.4.0</version>
+                <configuration>
+                    <failOnMissingWebXml>${maven.war.failOnMissingWebXml}</failOnMissingWebXml>
+                </configuration>
             </plugin>
+            <!-- Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version> <configuration>
+                <version>3.11.0</version>
+                <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
+                    <release>${maven.compiler.source}</release>
+                </configuration>
+            </plugin>
+            <!-- Surefire Plugin for running tests -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+            </plugin>
+            <!-- Reproducible builds -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <reproducible>true</reproducible>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <!-- Example profiles for different environments -->
+    <profiles>
+        <profile>
+            <id>production</id>
+            <properties>
+                <!-- Production-specific properties -->
+            </properties>
+        </profile>
+        <profile>
+            <id>development</id>
+            <properties>
+                <!-- Development-specific properties -->
+            </properties>
+        </profile>
+    </profiles>
+
 </project>
